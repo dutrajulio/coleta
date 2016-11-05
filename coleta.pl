@@ -3,20 +3,19 @@
 use strict;
 use warnings;
 use WWW::Curl::Easy;
-use XML::LibXML;
 use JSON qw( decode_json );
 use Path::Class;
 
 #Preenchimento obrigatório
-my $token = "EAACEdEose0cBAHrA64BbcVRfKGPfERRo4lgaXrACLmzHJe4aSXouQCT85dYdbanCFStKuvfegrNRwf41vBiQLatXEbz81ifuitvi0bGQdNJPA1QLModOHsZCPh6ZCQUAEQIw8byvxcsmNZB3xqZChwjS2UqYW0tEeVaLQMVZA5QZDZD";
+my $token = "1674998429480140|ZH183zE4uet1QQMojZZNm1baJ7A";
 
 my $site = "https://graph.facebook.com/";
 
 my $dir = dir("coletas");
 
-my $filename = "urls.txt";
-open ( my $fh, '<', $filename)
-  or die "Não consegui abrir $filename!\n";
+my $inputfile = "urls.txt";
+open ( my $fh, '<', $inputfile)
+  or die "Não consegui abrir $inputfile!\n";
 
 while (my $row = <$fh>) {
   my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime();
@@ -54,8 +53,8 @@ while (my $row = <$fh>) {
   $url = $site.$params;
   $curl = WWW::Curl::Easy->new;
 
-  my $filename = "coletas/coleta_$postid"."_"."$date"."_"."$coletor".".txt";
-  open my $fh, '>:encoding(UTF-8)', $filename;
+  my $outputfile = "coletas/coleta_$postid"."_"."$date"."_"."$coletor".".txt";
+  open my $fh, '>:encoding(UTF-8)', $outputfile;
 
   my $i = 1;
   my $q = 1;
