@@ -14,10 +14,10 @@ my $site = "https://graph.facebook.com/";
 my $dir = dir("coletas");
 
 my $inputfile = "urls.txt";
-open ( my $fh, '<', $inputfile)
+open ( my $inputfile_fh, '<', $inputfile)
   or die "Não consegui abrir $inputfile!\n";
 
-while (my $row = <$fh>) {
+while (my $row = <$inputfile_fh>) {
   my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime();
   my $date = "$year$mon$wday$hour$min$sec";
 
@@ -53,17 +53,15 @@ while (my $row = <$fh>) {
   $url = $site.$params;
   $curl = WWW::Curl::Easy->new;
 
-  my $outputfile = "coletas/coleta_$postid"."_"."$date"."_"."$coletor".".txt";
-  open my $fh, '>:encoding(UTF-8)', $outputfile;
-
   my $i = 1;
-  my $q = 1;
-
-  my $total = 0;
+  my $c = 0;
 
   print "Iniciando coleta do post: $postid.\n";
 
   while (1){
+    my $outputdir = "coletas/coleta_$postid"."_"."$date"."_"."$coletor/";
+    mkdir $outputdir;
+
     $curl->setopt(CURLOPT_HEADER,0);
     $curl->setopt(CURLOPT_URL, $url);
 
@@ -78,21 +76,23 @@ while (my $row = <$fh>) {
 
       my @comments = @{ $decoded->{'data'} };
       my $qtd = @comments;
-      my $total += $qtd;
 
       print $qtd." comentários na página $i\n";
 
       foreach my $comment ( @comments ){
         # $comment->{'message'} =~ s/[^[:ascii:]]//g;
-        print $fh $comment->{'message'}."\r\n";
+        $c++;
+        my $outputfile = "$outputdir/comment$c".".txt";
+        open my $outputfile_fh, '>:encoding(UTF-8)', $outputfile;
+        print $outputfile_fh $comment->{'message'}."\r\n";
+        close $outputfile_fh;
       }
       if ( $decoded->{'paging'}{'next'}){
         $url = $decoded->{'paging'}{'next'};
         $i++;
       } else {
-        print $total." comentários coletados.\n";
+        print $c." comentários coletados.\n";
         print "Fim da coleta!\n\n";
-        close $fh;
         last;
       }
     } else {
@@ -100,3 +100,4 @@ while (my $row = <$fh>) {
     }
   }
 }
+close $inputfile_fh;
