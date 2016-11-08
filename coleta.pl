@@ -84,6 +84,7 @@ while (my $row = <$inputfile_fh>) {
         $c++;
         my $outputfile = "$outputdir/comment$c".".txt";
         open my $outputfile_fh, '>:encoding(UTF-8)', $outputfile;
+          or die "Não consegui abrir $outputfile!\n";
         print $outputfile_fh $comment->{'message'}."\r\n";
         close $outputfile_fh;
       }
