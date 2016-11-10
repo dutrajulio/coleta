@@ -7,8 +7,20 @@ use WWW::Curl::Easy;
 use JSON qw( decode_json );
 use Path::Class;
 
-# Preenchimento obrigatório com o token gerado via https://developers.facebook.com/tools/explorer
-my $token = "1674998429480140|ZH183zE4uet1QQMojZZNm1baJ7A";
+# Arquivo contendo o token
+my $tokenfile = "token.txt";
+my $token;
+# Abro o arquivo leio apenas a primeira linha e salvo o conteúdo na variável
+open ( my $token_fh, '<', $tokenfile)
+  or die "Não consegui abrir $tokenfile!\n";
+
+while (<$token_fh>) {
+  chomp;
+  $token = $_;
+  last;
+}
+# Fecho o arquivo....boa prática
+close $token_fh;
 
 # Endereço da API do Facebook
 my $site = "https://graph.facebook.com/";
