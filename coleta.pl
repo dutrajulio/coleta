@@ -22,6 +22,8 @@ open ( my $inputfile_fh, '<', $inputfile)
 
 # Percorro o filehandler linha-a-linha
 while (my $row = <$inputfile_fh>) {
+  #Ignoro linhas comentadas
+  $row =~ /^#/ and next;
   # Pego a data corrente para diferenciação dos diretórios de saída.
   # Assim não corremos o risco de sobrescrever o conteúdo de nenhum diretório com os comentários
   # de outro post.
