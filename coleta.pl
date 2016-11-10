@@ -16,6 +16,9 @@ my $site = "https://graph.facebook.com/";
 # Arquivo de entrada com as URLs dos posts dos quais coletaremos os comentários
 my $inputfile = "urls.txt";
 
+# Varável que contará o número total de comentários considerando todos os posts(URLs)
+my $ct = 0;
+
 # Leio o arquivo acima pra dentro de um filehandler
 open ( my $inputfile_fh, '<', $inputfile)
   or die "Não consegui abrir $inputfile!\n";
@@ -48,23 +51,28 @@ while (my $row = <$inputfile_fh>) {
 
   # Paramêtros básicos passados a API do facebook
   my $params = "v2.8/$page?access_token=$token";
-  # Construção da URL básica e instanciamento da consulta que serve apenas para recuperar
-  # o id da página de origem do post
-  my $url = $site.$params;
+
+  # Instanciando um objeto curl
   my $curl = WWW::Curl::Easy->new;
   # Sem header pra facilitar a leitura do json
   $curl->setopt(CURLOPT_HEADER,0);
+  # Construção da URL básica para consulta que serve apenas para recuperar
+  # o id da página de origem do post
+  my $url = $site.$params;
+  # Configuração da requisição e direcionamento da resposta para variável
   $curl->setopt(CURLOPT_URL, $url);
   $curl->setopt(CURLOPT_WRITEDATA, \my $response_body);
 
-  # Realizo a requisição HTTP e gravo o código de retorno
+  # Realizo a consulta HTTP e gravo o código de retorno
   my $retcode = $curl->perform;
   # Decodifico o json contido no corpo da resposta
   my $decoded = decode_json($response_body);
   # Identifico e gravo o id da página de origem do post
   my $pageid;
+  # Se o código de retorno é 0 então tudo bem.
   if ( $retcode == 0){
     $pageid = $decoded->{'id'};
+  # Senão mostra qual merda aconteceu imprimindo o código de erro da requisição HTTP
   } else {
     print ("Merda, erro: $retcode ".$curl->strerror($retcode)." ".$curl->errbuf."\n");
   }
@@ -76,10 +84,9 @@ while (my $row = <$inputfile_fh>) {
   # inclusive os de resposta na ordem cronológica.
   $params = "v2.8/$post/comments?fields=message&filter=stream&access_token=$token";
 
-  # Construção da URL básica e instanciamento da consulta que recupera todos
+  # Construção da URL básica para consulta que recupera todos
   # os comentários de um determinado post
   $url = $site.$params;
-  $curl = WWW::Curl::Easy->new;
 
   # Variável que contará o número de páginas pois a API retorna a consulta páginada
   my $i = 1;
@@ -93,46 +100,72 @@ while (my $row = <$inputfile_fh>) {
   # de acordo com a quantidade de comentários ou páginas então criei um loop "infinito"
   # que é controlado lá em baixo pelos próprios dados de páginação trazidos no json.
   while (1){
+    # Seto e crio o diretório onde salvarei os arquivos com os comentários.
     my $outputdir = "coletas/coleta_$postid"."_"."$date"."_"."$colector/";
     mkdir $outputdir;
 
-    $curl->setopt(CURLOPT_HEADER,0);
+    # Configuração da requisição e direcionamento da resposta para variável, da
+    # consulta que recupera todos os comentários de um determinado post
     $curl->setopt(CURLOPT_URL, $url);
+    $curl->setopt(CURLOPT_WRITEDATA, \my $response_body);
 
-    my $response_body;
-    $curl->setopt(CURLOPT_WRITEDATA, \$response_body);
-
+    # Realizo a consulta HTTP e gravo o código de retorno
     my $retcode = $curl->perform;
 
+    # Decodifico o json contido no corpo da resposta
     my $decoded = decode_json($response_body);
 
+    # Se o código de retorno é 0 então tudo bem.
+    # Senão mostra qual merda aconteceu imprimindo o código de erro da requisição HTTP
     if ( $retcode == 0){
 
+      # Gravo o json decodificado
       my @comments = @{ $decoded->{'data'} };
+      # Pego a quantidade de comentários na "página"
       my $qtd = @comments;
 
+      # Só pra conferir o andamento do proceso em tempo de execução
       print $qtd." comentários na página $i\n";
 
+      # Percorre o array com os comentários e pego um comentário por vez
       foreach my $comment ( @comments ){
-        # $comment->{'message'} =~ s/[^[:ascii:]]//g;
+        # Incremento a variável de contagem de comentários
         $c++;
+        # Seto e abro o arquivo onde salvarei o comentário
         my $outputfile = "$outputdir/comment$c".".txt";
         open my $outputfile_fh, '>:encoding(UTF-8)', $outputfile
           or die "Não consegui abrir $outputfile!\n";
+        # Salvo o comentário no arquivo
         print $outputfile_fh $comment->{'message'}."\r\n";
+        # Fecho o arquivo....boa prática
         close $outputfile_fh;
       }
+      # Verifico se o json possui o campo "next" dento do campo "paging"
+      # Se tiver é porque existe mais uma página de comentários para esse post
       if ( $decoded->{'paging'}{'next'}){
+        # Seto a URL de consulta com link da próxima página
         $url = $decoded->{'paging'}{'next'};
+        # Incremento o contator de páginas
         $i++;
+      # Senão é porque estou na última, ou única, página com comentários
       } else {
+        # Somando o total de comtários em cada post
+        $ct += $c;
+        # Imprimo o resumo do que foi feito no post atual
         print $c." comentários coletados.\n";
         print "Fim da coleta!\n\n";
+        # Saio do foreach e continuo para a próxima iteração do while.
+        # Ou seja, passo pra próxima URL de post e volto pro inicio.
         last;
       }
+    # Esse é o senão da verificação do código da requisição que retorna os comentários
     } else {
+      # Se chegou aqui é porque de merda então mostra qual foi imprimindo o código de erro da requisição HTTP
       print ("Merda, erro: $retcode ".$curl->strerror($retcode)." ".$curl->errbuf."\n");
     }
   }
 }
+# Imprimo o resumo do que foi feito em todos os posts
+print $ct." comentários coletados considerando todos os posts.\n\n";
+# Fecho o arquivo....boa prática
 close $inputfile_fh;
