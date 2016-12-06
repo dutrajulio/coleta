@@ -6,6 +6,7 @@ use warnings;
 use WWW::Curl::Easy;
 use JSON qw( decode_json );
 use Path::Class;
+use Time::Piece;
 
 # Arquivo contendo o token
 my $tokenfile = "token.txt";
@@ -110,7 +111,7 @@ while (my $row = <$inputfile_fh>) {
   # Novos paramêtros, agora para a consulta dos comentários em si.
   # Usei o filtro stream pois segundo a documentação da API ele retorna todos os comentários
   # inclusive os de resposta na ordem cronológica.
-  $params = "v2.8/$post/comments?fields=message&filter=stream&access_token=$token";
+  $params = "v2.8/$post/comments?fields=message,created_time&filter=stream&access_token=$token";
 
   # Construção da URL básica para consulta que recupera todos
   # os comentários de um determinado post
@@ -119,11 +120,20 @@ while (my $row = <$inputfile_fh>) {
   # Variável que contará o número de páginas. A API retorna a consulta páginada
   my $i = 1;
 
-  # Varável que contará o número de comentários e servirá para separar os arquivos de saída
-  # pra cada comentário
+  # Variável que contará o número de comentários
   my $c = 0;
 
-  print "Iniciando coleta do post: $postid.\n";
+  # Para diferenciar comentários em um mesmo dia o filho da puta do programa pede
+  # pra incrementar letras ao nome do arquivo. Então instancio duas variáveis para 
+  # controlar esse incremento lá dentro da leitura dos comentários.
+  # Essa é a variável que realiza o incremento em si.
+  my $lc;
+
+  # Essa é a variável que controla as alterações de dias entre os comentários e 
+  # serve de condição para zerar o contador.
+  my $lctime = 0;
+
+  print "Iniciando coleta do post: $postid"."_"."$colector\n";
 
   # Como eu fiquei com preguiça de fazer mais consultas a API e assim realizar um loop
   # de acordo com a quantidade de comentários ou páginas, então criei um loop "infinito"
@@ -162,8 +172,41 @@ while (my $row = <$inputfile_fh>) {
         # Incremento a variável de contagem de comentários
         $c++;
 
+        # Pego e e trato a data de postagem do comentário pra que ela fique na bustrica
+        # do formato que o arquivo de leitura exite.
+        # Tem que ir de 2016-04-29 para 16429
+        my $ctime = $comment->{'created_time'};
+        $ctime =~ s/T.*//;
+        $ctime = Time::Piece->strptime("$ctime", "%Y-%m-%d");
+
+        # O mal parido precisa de mês com apenas 1 digito, essa é a função do sinal "-" aí
+        # embaixo.
+        $ctime = $ctime->strftime('%y%-m%d');
+
+        # O filho de uma égua do programa de entrada literalmente só trabalha com mêses em
+        # um digito. Filho da puta! Então usei as expressões abaixo pra substituir os mêses
+        # 10, 11 e 12 por a, b e c, respectivamente.
+        $ctime =~ s/(\d\d)10(\d\d)/${1}a${2}/;
+        $ctime =~ s/(\d\d)11(\d\d)/${1}b${2}/;
+        $ctime =~ s/(\d\d)12(\d\d)/${1}c${2}/;
+
+        # Se for vazio então é a primeira iteração
+        if ( $lctime == 0) {
+          $lc = 'a';
+          $lctime = $ctime;
+        # Senão é qualquer uma das próximas então vefico se lctime(last ctime) é igual ao ctime atual.
+        } elsif ( $lctime eq $ctime ){
+          # Se for quer dizer que o comentário foi feito no mesmo dia então acrescento uma letra.
+          $lc++;
+          $lctime = $ctime;
+        } else {
+          # Se não for quer dizer que o comentário foi feito em dia diferente, então reinicio a contagem.
+          $lc = 'a';
+          $lctime = $ctime;
+        }
+
         # Seto e abro o arquivo onde salvarei o comentário
-        my $outputfile = "$outputdir/comment$c".".txt";
+        my $outputfile = "$outputdir/$page$ctime$lc.txt";
         open my $outputfile_fh, '>:encoding(UTF-8)', $outputfile
           or die "Não consegui abrir $outputfile!\n";
 
@@ -172,6 +215,7 @@ while (my $row = <$inputfile_fh>) {
 
         # Fecho o arquivo....boa prática
         close $outputfile_fh;
+
       }
 
       # Verifico se o json possui o campo "next" dento do campo "paging"
