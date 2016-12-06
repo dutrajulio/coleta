@@ -192,16 +192,18 @@ while (my $row = <$inputfile_fh>) {
 
         # Se for vazio então é a primeira iteração
         if ( $lctime == 0) {
+          # Inicio o contador
           $lc = 'a';
+          # Atualizo o last ctime
           $lctime = $ctime;
-        # Senão é qualquer uma das próximas então vefico se lctime(last ctime) é igual ao ctime atual.
+        # Senão é qualquer uma das próximas, então vefico se lctime(last ctime) é igual ao ctime atual.
         } elsif ( $lctime eq $ctime ){
           # Se for quer dizer que o comentário foi feito no mesmo dia então acrescento uma letra.
           $lc++;
-          $lctime = $ctime;
         } else {
           # Se não for quer dizer que o comentário foi feito em dia diferente, então reinicio a contagem.
           $lc = 'a';
+          # E atualizo last ctime
           $lctime = $ctime;
         }
 
@@ -218,7 +220,7 @@ while (my $row = <$inputfile_fh>) {
 
       }
 
-      # Verifico se o json possui o campo "next" dento do campo "paging"
+      # Verifico se o json possui o campo "next" dentro do campo "paging"
       # Se tiver é porque existe mais uma página de comentários para esse post
       if ( $decoded->{'paging'}{'next'}){
 
