@@ -6,7 +6,7 @@ Escrito em perl
     * WWW::Curl::Easy
     * JSON
     * Path::Class
-    * Time::Piece;
+    * Time::Piece
 Utiliza versão 2.8 da API graph
 
 Passo-a-Passo:
@@ -24,7 +24,7 @@ Exemplo: token.txt
 ```
 1674998429480140|ZH183zE4uet1QQMojZZNm1baJ7A
 ```
-  * Preencha o arquivo "urls.txt" com os links dos posts um por linha. Ao final de cada linha acrecente "/IDENTIFICADOR", onde identificador pode ser qualquer string que facilitará a identificação do diretório com as coletas
+  * Preencha o arquivo "urls.txt" com os links dos posts, um por linha. Ao final de cada linha acrecente "/IDENTIFICADOR", onde identificador pode ser qualquer string que facilitará a identificação do diretório com as coletas
 Exemplo: urls.txt
 -------------------
 ```
@@ -38,4 +38,4 @@ https://www.facebook.com/cnn/posts/10154787199416509/luciana1105
 ```
 perl coleta.pl
 ```
-  * O script coletará os comentários de cada post e os salvará um comentário por arquivo, um diretório por post no diretório "coletas".
+  * O script coletará os comentários de cada post e os salvará um comentário por arquivo e um diretório por post no diretório "coletas".
