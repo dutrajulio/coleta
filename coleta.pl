@@ -94,13 +94,14 @@ while (my $row = <$inputfile_fh>) {
   # Decodifico o json contido no corpo da resposta
   my $decoded = decode_json($response_body);
 
+  # ID da página de origem do post
   my $pageid;
 
   # Se o código de retorno é 0 então tudo bem.
   if ( $retcode == 0){
     # Identifico e gravo o id da página de origem do post
     $pageid = $decoded->{'id'};
-  # Senão mostra qual merda aconteceu imprimindo o código de erro da requisição HTTP
+  # Senão, mostra qual merda aconteceu imprimindo o código de erro da requisição HTTP
   } else {
     print ("Merda, erro: $retcode ".$curl->strerror($retcode)." ".$curl->errbuf."\n");
   }
@@ -124,12 +125,12 @@ while (my $row = <$inputfile_fh>) {
   my $c = 0;
 
   # Para diferenciar comentários em um mesmo dia o filho da puta do programa pede
-  # pra incrementar letras ao nome do arquivo. Então instancio duas variáveis para 
+  # pra incrementar letras ao nome do arquivo. Então instancio duas variáveis para
   # controlar esse incremento lá dentro da leitura dos comentários.
   # Essa é a variável que realiza o incremento em si.
   my $lc;
 
-  # Essa é a variável que controla as alterações de dias entre os comentários e 
+  # Essa é a variável que controla as alterações de dias entre os comentários e
   # serve de condição para zerar o contador.
   my $lctime = 0;
 
@@ -143,7 +144,7 @@ while (my $row = <$inputfile_fh>) {
     my $outputdir = "coletas/coleta_$postid"."_"."$date"."_"."$colector/";
     mkdir $outputdir;
 
-    # Configuração da requisição e direcionamento da resposta para variável, da
+    # Configuração da requisição, e direcionamento da resposta para variável, da
     # consulta que recupera todos os comentários de um determinado post
     $curl->setopt(CURLOPT_URL, $url);
     $curl->setopt(CURLOPT_WRITEDATA, \my $response_body);
@@ -155,7 +156,7 @@ while (my $row = <$inputfile_fh>) {
     my $decoded = decode_json($response_body);
 
     # Se o código de retorno é 0 então tudo bem.
-    # Senão mostra qual merda aconteceu imprimindo o código de erro da requisição HTTP
+    # Senão, mostra qual merda aconteceu imprimindo o código de erro da requisição HTTP
     if ( $retcode == 0){
 
       # Gravo o json decodificado
@@ -172,23 +173,26 @@ while (my $row = <$inputfile_fh>) {
         # Incremento a variável de contagem de comentários
         $c++;
 
-        # Pego e e trato a data de postagem do comentário pra que ela fique na bustrica
-        # do formato que o arquivo de leitura exite.
+        # Pego e trato a data de postagem do comentário pra que ela fique na bustrica
+        # do formato que o arquivo de leitura exige.
         # Tem que ir de 2016-04-29 para 16429
         my $ctime = $comment->{'created_time'};
+        # Removo informações desnecessárias e fico apenas com o conteúdo no formado YY-MM-DD
         $ctime =~ s/T.*//;
+        # Converto a string em um objeto Time para facilitar a manipulação. Me parece melhor
+        # que manipular string.
         $ctime = Time::Piece->strptime("$ctime", "%Y-%m-%d");
 
-        # O mal parido precisa de mês com apenas 1 digito, essa é a função do sinal "-" aí
-        # embaixo.
+        # Manipulo o objeto Time para conseguir o formato que preciso. O mal parido precisa de
+        # mês com apenas 1 digito, essa é a função do sinal "-" aí embaixo.
         $ctime = $ctime->strftime('%y%-m%d');
 
         # O filho de uma égua do programa de entrada literalmente só trabalha com mêses em
         # um digito. Filho da puta! Então usei as expressões abaixo pra substituir os mêses
         # 10, 11 e 12 por a, b e c, respectivamente.
-        $ctime =~ s/(\d\d)10(\d\d)/${1}a${2}/;
-        $ctime =~ s/(\d\d)11(\d\d)/${1}b${2}/;
-        $ctime =~ s/(\d\d)12(\d\d)/${1}c${2}/;
+        $ctime =~ s/(\d{2})10(\d{2})/${1}a${2}/;
+        $ctime =~ s/(\d{2})11(\d{2})/${1}b${2}/;
+        $ctime =~ s/(\d{2})12(\d{2})/${1}c${2}/;
 
         # Se for vazio então é a primeira iteração
         if ( $lctime == 0) {
@@ -196,10 +200,11 @@ while (my $row = <$inputfile_fh>) {
           $lc = 'a';
           # Atualizo o last ctime
           $lctime = $ctime;
-        # Senão é qualquer uma das próximas, então vefico se lctime(last ctime) é igual ao ctime atual.
+        # Senão, é qualquer uma das próximas, então vefico se lctime(last ctime) é igual ao ctime atual.
         } elsif ( $lctime eq $ctime ){
           # Se for quer dizer que o comentário foi feito no mesmo dia então acrescento uma letra.
           $lc++;
+          $lctime = $ctime;
         } else {
           # Se não for quer dizer que o comentário foi feito em dia diferente, então reinicio a contagem.
           $lc = 'a';
@@ -230,7 +235,7 @@ while (my $row = <$inputfile_fh>) {
         # Incremento o contator de páginas
         $i++;
 
-      # Senão é porque estou na última, ou única, página com comentários
+      # Senão, é porque estou na última, ou única, página com comentários
       } else {
         # Somando o total de comtários em cada post
         $ct += $c;
