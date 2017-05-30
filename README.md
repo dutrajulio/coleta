@@ -36,12 +36,14 @@ Passo-a-Passo:
   * Em "Aplicativo: [?]" selecione o aplicativo recém criado
   * Em "Get token" selecione "Get App Token"
   * Copie o conteúdo gerado no campo "Token de acesso:" e cole no arquivo "token.txt"
+
 Exemplo: token.txt
 -------------------
 ```
 1674998429480140|ZH183zE4uet1QQMojZZNm1baJ7A
 ```
   * Preencha o arquivo "urls.txt" com os links dos posts, um por linha. Ao final de cada linha acrecente "/IDENTIFICADOR", onde identificador pode ser qualquer string que facilitará a identificação do diretório com as coletas
+
 Exemplo: urls.txt
 -------------------
 ```
