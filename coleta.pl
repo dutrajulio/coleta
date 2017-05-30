@@ -24,10 +24,10 @@ use Path::Class;
 use Time::Piece;
 
 #Informando termos de uso/licenciamento
-print "Coleta.pl  Copyright (C) 2016  Júlio Dutra Couto\n
-    This program comes with ABSOLUTELY NO WARRANTY.\n
-    This is free software, and you are welcome to redistribute it\n
-    under certain conditions.\n\n";
+print "coleta.pl  Copyright (C) 2016  Júlio Dutra Couto
+This program comes with ABSOLUTELY NO WARRANTY.
+This is free software, and you are welcome to redistribute it
+under certain conditions.\n\n";
 
 # Arquivo contendo o token
 my $tokenfile = "token.txt";
