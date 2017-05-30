@@ -1,5 +1,20 @@
 #!/bin/perl -w
 # Feito em perl pq Deus quis
+# Copyright (C) 2016 Júlio Dutra Couto
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# dutra.julio at gmail.com
 
 use strict;
 use warnings;
@@ -7,6 +22,12 @@ use WWW::Curl::Easy;
 use JSON qw( decode_json );
 use Path::Class;
 use Time::Piece;
+
+#Informando termos de uso/licenciamento
+print "Coleta.pl  Copyright (C) 2016  Júlio Dutra Couto\n
+    This program comes with ABSOLUTELY NO WARRANTY.\n
+    This is free software, and you are welcome to redistribute it\n
+    under certain conditions.\n\n";
 
 # Arquivo contendo o token
 my $tokenfile = "token.txt";
