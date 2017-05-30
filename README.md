@@ -23,6 +23,7 @@ Escrito em perl
     * JSON
     * Path::Class
     * Time::Piece
+
 Utiliza versão 2.8 da API graph
 
 Passo-a-Passo:
