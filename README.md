@@ -1,5 +1,6 @@
 # Coleta
-Script que coleta comentários de posts no Facebook
+Script que coleta comentários de posts no Facebook gerando arquivos para
+alimentar o software Prospéro(https://github.com/josquindebaz/P2Qt).
 
 Copyright (C) 2016 Júlio Dutra Couto
 
@@ -28,8 +29,8 @@ Utiliza versão 2.8 da API graph
 
 Passo-a-Passo:
   * Acesse https://developers.facebook.com
-  * Faça seu cadastro
-  * No canto superior direito clique em "Meus aplicativos" e "Adicionar um novo aplicativo"
+  * Cadaste-se
+  * No canto superior direito clique em "Meus aplicativos" e em "Adicionar um novo aplicativo"
   * Preencha os dados a gosto
   * Clique em "Ferramentas e suporte"
   * Clique em "Graph API Explorer"
@@ -42,7 +43,7 @@ Exemplo: token.txt
 ```
 1674998429480140|ZH183zE4uet1QQMojZZNm1baJ7A
 ```
-  * Preencha o arquivo "urls.txt" com os links dos posts, um por linha. Ao final de cada linha acrecente "/IDENTIFICADOR", onde identificador pode ser qualquer string que facilitará a identificação do diretório com as coletas
+  * Preencha o arquivo "urls.txt" com os links dos posts, um por linha. Ao final de cada linha acrescente "/IDENTIFICADOR", onde identificador pode ser qualquer string que facilitará a identificação do diretório com as coletas
 
 Exemplo: urls.txt
 -------------------
