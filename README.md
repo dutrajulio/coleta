@@ -58,4 +58,4 @@ https://www.facebook.com/cnn/posts/10154787199416509/luciana1105
 ```
 perl coleta.pl
 ```
-  * O script coletará os comentários de cada post e os salvará um comentário por arquivo e um diretório por post no diretório "coletas".
+  * O script coletará os comentários de cada post e os salvará, um comentário por arquivo, um diretório por post, no diretório "coletas".
